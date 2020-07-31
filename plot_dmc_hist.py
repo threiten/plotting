@@ -9,9 +9,9 @@ import numpy as np
 
 class plot_dmc_hist(plotBase):
 
-    def __init__(self, df_mc, df_data, var, weightstr_mc, label, type, **kwargs):
+    def __init__(self, df_mc, var, weightstr_mc, label, type, df_data=None, **kwargs):
 
-        super(plot_dmc_hist, self).__init__(df_mc, df_data, var, weightstr_mc, label, type, **kwargs)
+        super(plot_dmc_hist, self).__init__(df_mc, var, weightstr_mc, label, type, df_data=df_data, **kwargs)
 
         self.ratio_lim = kwargs['ratio_lim']
         self.bins = np.linspace(kwargs['xmin'], kwargs['xmax'], kwargs['bins']+1)
@@ -20,7 +20,10 @@ class plot_dmc_hist(plotBase):
             self.normalize_mc()
 
         if 'ratio' in kwargs:
-            self.ratio = kwargs['ratio']
+            if df_data is not None:
+                self.ratio = kwargs['ratio']
+            elif df_data is None:
+                self.ratio = False
 
         if 'logy' in kwargs:
             self.logy = kwargs['logy']
@@ -64,7 +67,6 @@ class plot_dmc_hist(plotBase):
 
         self.mc_labels = ['MC_{}'.format(var).replace(self.mc_vars[0], '').replace('_', ' ') for var in self.mc_vars]
 
-        # top.xaxis.grid(True)
         if self.ratio:
             bottom.grid()
             
@@ -78,21 +80,23 @@ class plot_dmc_hist(plotBase):
             mc_errs.append(mc_err)
             self.mc_hists.append(hist)
 
-        if hasattr(self, 'data_weights'):
-            self.data_hist, _ = np.histogram(self.data, density=False, bins=self.bins, weights=self.data_weights)
-            data_err, _ = np.histogram(self.data, density=False, bins=self.bins, weights=self.data_weights**2)
-            data_err = np.sqrt(data_err)
-        else:
-            self.data_hist, _ = np.histogram(self.data, density=False, bins=self.bins)
-            data_err = np.sqrt(self.data_hist)
-            
-        (_, caps, _) = top.errorbar(xc, self.data_hist, ls='None', yerr=data_err, xerr=np.ones_like(self.data_hist)*binw*0.5, color='black', label=r'data', marker='.', markersize=8)
-        for cap in caps:
-            cap.set_markeredgewidth(0)
+        if self.data is not None:
+            if hasattr(self, 'data_weights'):
+                self.data_hist, _ = np.histogram(self.data, density=False, bins=self.bins, weights=self.data_weights)
+                data_err, _ = np.histogram(self.data, density=False, bins=self.bins, weights=self.data_weights**2)
+                data_err = np.sqrt(data_err)
+            else:
+                self.data_hist, _ = np.histogram(self.data, density=False, bins=self.bins)
+                data_err = np.sqrt(self.data_hist)
+            (_, caps, _) = top.errorbar(xc, self.data_hist, ls='None', yerr=data_err, xerr=np.ones_like(self.data_hist)*binw*0.5, color='black', label=r'data', marker='.', markersize=8)
+            for cap in caps:
+                cap.set_markeredgewidth(0)
 
         if axes is None:
             axes = fig.axes
             top = axes[0]
+
+        top.xaxis.grid(True)
 
         if self.ratio:
             for i in range(len(self.mc_vars)):

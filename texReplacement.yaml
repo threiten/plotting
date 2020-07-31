@@ -23,3 +23,4 @@ probePhiWidth: math:\sigma_{\phi}
 probeCovarianceIeIp: math:\sigma_{i\eta i\phi}
 probeCovarianceIetaIphi: math:\sigma_{i\eta i\phi}
 rho: math:\rho:GeV
+sigmaMoM_decorr: math:\sigma_{M}/M\,\textnormal{(decorrelated)}

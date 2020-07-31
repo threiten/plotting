@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 
 class plotBase(object):
 
-    def __init__(self, df_mc, df_data, var, weightstr_mc, label, type, **kwargs):
+    def __init__(self, df_mc, var, weightstr_mc, label, type, df_data=None, **kwargs):
 
         self.var = var
         self.weightstr_mc = weightstr_mc
@@ -18,11 +18,13 @@ class plotBase(object):
 
         if 'cut' in kwargs:
             df_mc_read = df_mc.query(kwargs['cut'], engine='python')
-            df_data_read = df_data.query(kwargs['cut'], engine='python')
+            if df_data is not None:
+                df_data_read = df_data.query(kwargs['cut'], engine='python')
             self.cut = kwargs['cut']
         else:
             df_mc_read = df_mc
-            df_data_read = df_data
+            if df_data is not None:
+                df_data_read = df_data
 
         if 'lumi' in kwargs:
             self.lumi = kwargs['lumi']
@@ -36,14 +38,17 @@ class plotBase(object):
             self.title += ' {}'.format(kwargs['num'])
 
         self.mc = df_mc_read.loc[:, self.mc_vars]
-        self.data = df_data_read.loc[:, [var]].values
+        if df_data is not None:
+            self.data = df_data_read.loc[:, [var]].values
+        else:
+            self.data = None
 
         self.mc_weights = df_mc_read.loc[:, [weightstr_mc]].values
         self.mc_weights_cache = df_mc_read.loc[:, [weightstr_mc]].values
 
         self.tex_replace_dict = yaml.load(open('/t3home/threiten/python/plotting/texReplacement.yaml'))
 
-        if 'weightstr_data' in kwargs:
+        if 'weightstr_data' in kwargs and df_data is not None:
             self.weightstr_data = kwargs['weightstr_data']
             self.data_weights = df_data_read.loc[:, [kwargs['weightstr_data']]].values
 
