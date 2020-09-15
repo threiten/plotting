@@ -43,11 +43,11 @@ def make_unique_names(plt_list):
                 
     return plt_list
 
-def make_vars(plot_dict,extra=[]):
+def make_vars(plot_dict,extra=[],extens=True):
     ret = []
     for dic in plot_dict:
         ret.append(dic['var'])
-        if 'exts' in dic.keys():
+        if 'exts' in dic.keys() and extens:
             for ext in dic['exts']:
                 ret.append(dic['var'] + ext)
 
@@ -55,10 +55,20 @@ def make_vars(plot_dict,extra=[]):
 
     return remove_duplicates(ret)
 
+def check_vars(df, varrs):
+
+    varmiss = len(varrs) * [False]
+    for i, var in enumerate(varrs):
+        if not var in df.columns:
+            varmiss[i] = True
+
+    return varmiss
+
 def main(options):
     
     plot_dict = make_unique_names(pyml.yaml_parser(options.config)())
     varrs = make_vars(plot_dict,['weight', 'probePassEleVeto', 'tagPt', 'tagScEta', 'tagR9', 'probeEtaWidth_Sc', 'probePhiWidth_Sc','probePhoIso_uncorr', 'probeScEnergy', 'probeSigmaRR'])
+    varrs_data = make_vars(plot_dict,['weight', 'probePassEleVeto', 'tagPt', 'tagScEta', 'tagR9', 'probeEtaWidth_Sc', 'probePhiWidth_Sc','probePhoIso_uncorr', 'probeScEnergy', 'probeSigmaRR'],extens=False)
 
     if 'probePhoIso03_uncorr' in varrs:
         varrs.pop(varrs.index('probePhoIso03_uncorr'))
@@ -73,9 +83,9 @@ def main(options):
     if options.data.split('.')[-1] == 'root':
         if options.data_tree is None:
             raise NameError('data_tree has to be in options if a *.root file is used as input')
-        df_data = root_pandas.read_root(options.data, options.data_tree, columns=varrs)
+        df_data = root_pandas.read_root(options.data, options.data_tree, columns=varrs_data)
     else:
-        df_data = pd.read_hdf(options.data, columns=varrs)
+        df_data = pd.read_hdf(options.data, columns=varrs_data)
 
     if 'weight_clf' not in df_mc.columns and not options.no_reweight:
         if options.reweight_cut is not None:
@@ -95,8 +105,8 @@ def main(options):
     if 'probeEtaWidth' in varrs:
         df_data['probeEtaWidth'] = df_data['probeEtaWidth_Sc']
 
-    if 'probePhoIso03' in varrs:
-        df_mc['probePhoIso03_uncorr'] = df_mc['probePhoIso_uncorr']
+    # if 'probePhoIso03' in varrs:
+    #     df_mc['probePhoIso03_uncorr'] = df_mc['probePhoIso_uncorr']
 
     if options.recomp_mva:
         stride = int(df_mc.index.size/10)
@@ -107,10 +117,17 @@ def main(options):
         df_mc['probeScPreshowerEnergy'] = np.zeros(df_mc.index.size)
         df_mc['probePhoIdMVA_uncorr'] = np.concatenate(Parallel(n_jobs=10,verbose=20)(delayed(helpComputeIdMva)(weightsEB,weightsEE,correctedVariables,df_mc[ch:ch+stride],'uncorr', False) for ch in range(0,df_mc.index.size,stride)))
         # df_mc['probePhoIdMVA_uncorr'] = helpComputeIdMva(weightsEB,weightsEE,correctedVariables,df_mc,'uncorr', False)
-        
+
+    varrs_miss = check_vars(df_mc, varrs)
+    varrs_data_miss = check_vars(df_data, varrs_data)
+    if any(varrs_miss + varrs_data_miss):
+        print('Missing variables from mc df: ', list(itertools.compress(varrs,varrs_miss)))
+        print('Missing variables from data df: ', list(itertools.compress(varrs_data,varrs_data_miss)))
+        raise KeyError('Variables missing !')
+    
     plots = []
     for dic in plot_dict:
-        plots.append(pldmc.plot_dmc_hist(df_mc, df_data, ratio=options.ratio, norm=options.norm, cut_str=options.cutstr, label=options.label, **dic))
+        plots.append(pldmc.plot_dmc_hist(df_mc, df_data=df_data, ratio=options.ratio, norm=options.norm, cut_str=options.cutstr, label=options.label, **dic))
 
     for plot in plots:
         plot.draw()

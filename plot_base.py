@@ -13,7 +13,10 @@ class plotBase(object):
 
         self.var = var
         self.weightstr_mc = weightstr_mc
-        self.title = '{} {}'.format(var, label).replace('_', ' ')
+        if label is not None:
+            self.title = '{} {}'.format(var, label).replace('_', ' ')
+        else:
+            self.title = '{}'.format(var).replace('_', ' ')
         self.pl_tpe = type
 
         if 'cut' in kwargs:
