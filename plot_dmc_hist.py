@@ -193,8 +193,10 @@ class plot_dmc_hist(plotBase):
         else:
             top.legend(loc='best')
 
-        self.drawCMSLogo(top, self.cmsText)
-        self.drawIntLumi(top, self.lumiStr)
+        if self.cmsText is not None:
+            self.drawCMSLogo(top, self.cmsText)
+        if self.lumiStr is not None:
+            self.drawIntLumi(top, self.lumiStr)
         if hasattr(self, 'cut_str'):
             if self.cut_str or isinstance(self.cut_str, str):
                 fig.canvas.draw()

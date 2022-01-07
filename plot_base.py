@@ -59,7 +59,7 @@ class plotBase(object):
         if 'cmsText' in kwargs:
             self.cmsText = kwargs['cmsText']
         else:
-            self.cmsText = 'wip'
+            self.cmsText = None
 
         self.mc = df_mc_read.loc[:, self.mc_vars]
         if df_data is not None:
@@ -70,7 +70,7 @@ class plotBase(object):
         self.mc_weights = df_mc_read.loc[:, [weightstr_mc]].values
         self.mc_weights_cache = df_mc_read.loc[:, [weightstr_mc]].values
 
-        with open('/t3home/threiten/python/plotting/texReplacement.yaml') as f:
+        with open('/home/thomas/anaconda3/plotting/texReplacement.yaml') as f:
             self.tex_replace_dict = yaml.load(f)
             f.close()
 
