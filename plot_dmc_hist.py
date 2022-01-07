@@ -21,7 +21,7 @@ class plot_dmc_hist(plotBase):
         self.mcHatch = None
         if 'mcHatch' in kwargs:
             self.mcHatch = kwargs['mcHatch']
-                    
+
         if ('norm' in kwargs and kwargs['norm'] is True) or 'lumi' in kwargs:
             self.normalize_mc()
 
@@ -30,24 +30,26 @@ class plot_dmc_hist(plotBase):
             if kwargs['normToMax']:
                 maxBMC = []
                 for var in self.mc_vars:
-                    maxBMC.append(np.max(np.histogram(self.mc.loc[:, [var]].values, density=False, bins=self.bins, range=(self.bins[0], self.bins[-1]), weights=self.mc_weights)[0]))
+                    maxBMC.append(np.max(np.histogram(self.mc.loc[:, [var]].values, density=False, bins=self.bins, range=(
+                        self.bins[0], self.bins[-1]), weights=self.mc_weights)[0]))
                 if df_data is not None:
                     if hasattr(self, 'data_weights'):
-                        maxBData = np.max(np.histogram(self.data, density=False, bins=self.bins, weights=self.data_weights)[0])
+                        maxBData = np.max(np.histogram(
+                            self.data, density=False, bins=self.bins, weights=self.data_weights)[0])
                         self.normFactor = max([maxBData] + maxBMC)
                         self.mc_weights /= self.normFactor
                         self.data_weights /= self.normFactor
                     else:
-                        maxBData = np.max(np.histogram(self.data, density=False, bins=self.bins)[0])
-                        print(maxBData)
+                        maxBData = np.max(np.histogram(
+                            self.data, density=False, bins=self.bins)[0])
                         self.normFactor = max([maxBData] + maxBMC)
                         self.mc_weights /= self.normFactor
-                        self.data_weights = np.divide(np.ones_like(self.data), self.normFactor)
+                        self.data_weights = np.divide(
+                            np.ones_like(self.data), self.normFactor)
                 else:
                     self.normFactor = max(maxBMC)
                     self.mc_weights /= self.normFactor
-                print('normFactor: ', self.normFactor)
-                
+
         if 'ratio' in kwargs:
             if df_data is not None:
                 self.ratio = kwargs['ratio']
@@ -182,18 +184,19 @@ class plot_dmc_hist(plotBase):
 
         axes[0].set_ylabel(r'\textit{{{0}}}'.format(
             'Events / {0:.4f}'.format(self.binw)), fontsize=20)
-        #axes[0].yaxis.set_major_formatter(FormatStrFormatter('%.4g'))
+        # axes[0].yaxis.set_major_formatter(FormatStrFormatter('%.4g'))
         if hasattr(self, 'normToMax'):
             if self.normToMax:
                 axes[0].set_ylabel(r'\textit{a.u.}', fontsize=20, loc='top')
 
         # fig.suptitle(self.title, y=0.99)
         if hasattr(self, 'leg_loc'):
-            top.legend(loc=self.leg_loc)
+            top.legend(loc=self.leg_loc, framealpha=0)
         else:
-            top.legend(loc='best')
+            top.legend(loc='best', framealpha=0)
 
-        self.drawCMSLogo(top, self.cmsText)
+        if self.cmsText is not None:
+            self.drawCMSLogo(top, self.cmsText)
         self.drawIntLumi(top, self.lumiStr)
         if hasattr(self, 'cut_str'):
             if self.cut_str or isinstance(self.cut_str, str):

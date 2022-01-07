@@ -7,20 +7,28 @@ import yaml
 
 
 class yaml_parser():
-    
+
     def __init__(self, fname):
 
         self.fname = fname
 
-        org_dict = yaml.load(open(fname))
+        org_dict = yaml.load(open(fname), Loader=yaml.FullLoader)
         self.final_dicts = org_dict['plots']
+
+        if org_dict['globalOpts'] is not None:
+            for glKey in org_dict['globalOpts']:
+                for key in self.final_dicts.keys():
+                    if glKey not in self.final_dicts[key].keys():
+                        self.final_dicts[key][glKey] = org_dict['globalOpts'][glKey]
 
         if org_dict['cuts'] is not None:
             for key in self.final_dicts.keys():
                 if 'cut' in self.final_dicts[key]:
-                    self.final_dicts[key]['cut'] = tuple(sti.strip() for sti in self.final_dicts[key]['cut'].split(',')) + tuple(sti.strip() for sti in org_dict['cuts'].split(','))
+                    self.final_dicts[key]['cut'] = tuple(sti.strip() for sti in self.final_dicts[key]['cut'].split(
+                        ',')) + tuple(sti.strip() for sti in org_dict['cuts'].split(','))
                 else:
-                    self.final_dicts[key]['cut'] = tuple(sti.strip() for sti in org_dict['cuts'].split(','))
+                    self.final_dicts[key]['cut'] = tuple(
+                        sti.strip() for sti in org_dict['cuts'].split(','))
 
     @staticmethod
     def parse_var(var):
@@ -30,7 +38,7 @@ class yaml_parser():
 
         try:
             return list(ast.literal_eval(str(var)))
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, SyntaxError):
             return [sti.strip() for sti in var.split(',')]
 
     @classmethod
@@ -46,7 +54,7 @@ class yaml_parser():
             for key in ord_dict.keys():
                 dic[key] = litpl[list(ord_dict.keys()).index(key)]
             dic_list.append(dic)
-                
+
         return dic_list
 
     @staticmethod

@@ -1,6 +1,7 @@
 mass: math:m_{ee}:GeV
 pt: math:p_{t,Z}:GeV
 probePt: math:p_{t}:GeV
+probeScEnergy: math:E_{SC}:GeV
 tagPt: math:p_{t}(tag):GeV
 tagR9: math:R_{9}(tag)
 probeScEta: math:\eta
@@ -12,19 +13,19 @@ probePassEleVeto==0: ''
 abs(tagScEta)<2.5: ''
 abs(tagScEta)<2.1: ''
 abs(probeScEta)<2.5: ''
-probeChIso03: math:Iso_{ch}:GeV
-probeChIso03_corr: math:Iso_{ch}:GeV
-probeChIso03worst: math:Iso_{ch,worst}:GeV
-probeSigmaIeIe_corr: math:\sigma_{i\eta i\eta}
-probeSigmaIeIe: math:\sigma_{i\eta i\eta}
+probeChIso03: math:\mathcal{I}_{ch}:GeV
+probeChIso03_corr: math:\mathcal{I}_{ch}:GeV
+probeChIso03worst: math:\mathcal{I}_{ch,worst}:GeV
+probeSigmaIeIe_corr: math:\sigma_{I\eta I\eta}
+probeSigmaIeIe: math:\sigma_{I\eta I\eta}
 run: math:\textnormal{run}
-probePhoIso: math:Iso_{ph}:GeV
+probePhoIso: math:\mathcal{I}_{ph}:GeV
 probeR9: math:R_{9}
 probeS4: math:S_{4}
 probeEtaWidth: math:\sigma_{\eta}
 probePhiWidth: math:\sigma_{\phi}
-probeCovarianceIeIp: math:\sigma_{i\eta i\phi}
-probeCovarianceIetaIphi: math:\sigma_{i\eta i\phi}
+probeCovarianceIeIp: math:\sigma_{I\eta I\phi}
+probeCovarianceIetaIphi: math:\sigma_{I\eta I\phi}
 rho: math:\rho:GeV
 sigmaMoM_decorr: math:\sigma_{M}/M\,\textnormal{(decorrelated)}
 probeSigEOverE: math:\sigma_{E}/E

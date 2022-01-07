@@ -56,10 +56,9 @@ class plotBase(object):
         if 'num' in kwargs:
             self.title += ' {}'.format(kwargs['num'])
 
+        self.cmsText = None
         if 'cmsText' in kwargs:
             self.cmsText = kwargs['cmsText']
-        else:
-            self.cmsText = 'wip'
 
         self.mc = df_mc_read.loc[:, self.mc_vars]
         if df_data is not None:
@@ -71,7 +70,7 @@ class plotBase(object):
         self.mc_weights_cache = df_mc_read.loc[:, [weightstr_mc]].values
 
         with open('/t3home/threiten/python/plotting/texReplacement.yaml') as f:
-            self.tex_replace_dict = yaml.load(f)
+            self.tex_replace_dict = yaml.load(f, Loader=yaml.FullLoader)
             f.close()
 
         if 'weightstr_data' in kwargs and df_data is not None:
@@ -195,12 +194,15 @@ class plotBase(object):
     @staticmethod
     def drawCMSLogo(ax, opt, fs=22):
 
-        ax.text(0, 1, cmsTextDic[opt], fontsize=fs, transform=ax.transAxes, va='bottom')
+        ax.text(0, 1, cmsTextDic[opt], fontsize=fs,
+                transform=ax.transAxes, va='bottom')
 
     @staticmethod
     def drawIntLumi(ax, intL=138, fs=22):
 
         if intL is None:
-            ax.text(1, 1, r'13\ensuremath{\,\text{Te\hspace{-.08em}V}}\xspace', fontsize=fs, transform=ax.transAxes, ha='right', va='bottom')
+            ax.text(1, 1, r'13\ensuremath{\,\text{Te\hspace{-.08em}V}}\xspace',
+                    fontsize=fs, transform=ax.transAxes, ha='right', va='bottom')
         else:
-            ax.text(1, 1, r'{}\mbox{{\ensuremath{{\,\text{{fb}}^{{-1}}}}}}\xspace (13\ensuremath{{\,\text{{Te\hspace{{-.08em}}V}}}}\xspace)'.format(intL), fontsize=fs, transform=ax.transAxes, ha='right', va='bottom')
+            ax.text(1, 1, r'{}\mbox{{\ensuremath{{\,\text{{fb}}^{{-1}}}}}}\xspace (13\ensuremath{{\,\text{{Te\hspace{{-.08em}}V}}}}\xspace)'.format(
+                intL), fontsize=fs, transform=ax.transAxes, ha='right', va='bottom')
